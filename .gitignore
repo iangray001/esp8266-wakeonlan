@@ -1,6 +1,7 @@
 .pioenvs
 .clang_complete
 .gcc-flags.json
+src/settings.h
 
 # Created by https://www.gitignore.io/api/osx,c++
 
@@ -60,4 +61,3 @@ Temporary Items
 *.exe
 *.out
 *.app
-
