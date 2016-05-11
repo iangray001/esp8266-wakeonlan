@@ -3,6 +3,10 @@
 .gcc-flags.json
 src/settings.h
 
+.cproject
+.project
+.settings
+
 # Created by https://www.gitignore.io/api/osx,c++
 
 ### OSX ###
@@ -11,7 +15,8 @@ src/settings.h
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
