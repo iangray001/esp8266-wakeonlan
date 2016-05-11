@@ -103,6 +103,7 @@ byte valFromChar(char c) {
 	if(c >= 'a' && c <= 'f') return ((byte) (c - 'a') + 10) & 0x0F;
 	if(c >= 'A' && c <= 'F') return ((byte) (c - 'A') + 10) & 0x0F;
 	if(c >= '0' && c <= '9') return ((byte) (c - '0')) & 0x0F;
+	return 0;
 }
 
 /*
