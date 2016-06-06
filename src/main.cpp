@@ -2,6 +2,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+#include <ArduinoOTA.h>
 #include <Arduino.h>
 #include <SPI.h>
 #include <WiFiUDP.h>
@@ -10,20 +11,22 @@
 MDNSResponder mdns;
 WiFiUDP udp;
 ESP8266WebServer server(80);
+
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
-
 
 void sendWOL(const IPAddress ip, const byte mac[]);
 void beginWifi();
 void macStringToBytes(const String mac, byte *bytes);
+void beginOTA();
 
 void setup(void){
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, 0);
 	Serial.begin(115200);
 	beginWifi();
-	while (!mdns.begin("esp8266", WiFi.localIP())) {}
+
+	mdns.begin("esp8266");
 	udp.begin(9);
 
 	server.on("/", []() {
@@ -60,12 +63,18 @@ void setup(void){
 	server.onNotFound([](){
 		server.send(404, "text/plain", "");
 	});
+
 	server.begin();
+
+	beginOTA();
+
+	mdns.addService("http", "tcp", 80);
 	Serial.println("HTTP server started");
 }
 
 void loop(void){
 	server.handleClient();
+	ArduinoOTA.handle();
 }
 
 
@@ -84,10 +93,28 @@ void beginWifi() {
 	Serial.println(WiFi.localIP());
 }
 
+void beginOTA() {
+	ArduinoOTA.setPort(8266);
+	ArduinoOTA.setHostname("esp8266");
+	ArduinoOTA.onStart([]() {
+		Serial.println("Start");
+	});
+	ArduinoOTA.onEnd([]() {
+		Serial.println("\nEnd");
+	});
+	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	});
+	ArduinoOTA.onError([](ota_error_t error) {
+		Serial.printf("Error[%u]: ", error);
+	});
+	ArduinoOTA.begin();
+}
+
 /*
-* Send a Wake-On-LAN packet for the given MAC address, to the given IP
-* address. Often the IP address will be the local broadcast.
-*/
+ * Send a Wake-On-LAN packet for the given MAC address, to the given IP
+ * address. Often the IP address will be the local broadcast.
+ */
 void sendWOL(const IPAddress ip, const byte mac[]) {
 	byte preamble[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 	udp.beginPacket(ip, 9);
@@ -107,10 +134,10 @@ byte valFromChar(char c) {
 }
 
 /*
-* Very simple converter from a String representation of a MAC address to
-* 6 bytes. Does not handle errors or delimiters, but requires very little
-* code space and no libraries.
-*/
+ * Very simple converter from a String representation of a MAC address to
+ * 6 bytes. Does not handle errors or delimiters, but requires very little
+ * code space and no libraries.
+ */
 void macStringToBytes(const String mac, byte *bytes) {
 	if(mac.length() >= 12) {
 		for(int i = 0; i < 6; i++) {
