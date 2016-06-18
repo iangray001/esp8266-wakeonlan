@@ -21,8 +21,6 @@ void macStringToBytes(const String mac, byte *bytes);
 void beginOTA();
 
 void setup(void){
-	pinMode(LED_BUILTIN, OUTPUT);
-	digitalWrite(LED_BUILTIN, 0);
 	Serial.begin(115200);
 	beginWifi();
 
