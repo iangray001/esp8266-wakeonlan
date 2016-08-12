@@ -13,14 +13,11 @@ ESP8266WebServer server(80);
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 
-
 void sendWOL(const IPAddress ip, const byte mac[]);
 void beginWifi();
 void macStringToBytes(const String mac, byte *bytes);
 
 void setup(void){
-	pinMode(LED_BUILTIN, OUTPUT);
-	digitalWrite(LED_BUILTIN, 0);
 	Serial.begin(115200);
 	beginWifi();
 	while (!mdns.begin("esp8266", WiFi.localIP())) {}
