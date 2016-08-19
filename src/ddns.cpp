@@ -29,7 +29,7 @@ bool updateDDNS(WiFiClient& client, bool verbose) {
 
 	while(client.available()){
 		String line = client.readStringUntil('\r');
-		if(verbose) Serial.print(line);
+		//if(verbose) Serial.println(line);
 	}
 
 	if(verbose) Serial.println("\nDDNS update complete.");

@@ -6,9 +6,7 @@
 #include <WiFiUDP.h>
 #include "settings.h"
 #include <limits.h>
-
 #include <ddns.h>
-#include <ntp.h>
 
 MDNSResponder mdns;
 WiFiUDP udp;
@@ -22,12 +20,11 @@ const char* password = WIFI_PASSWORD;
 void sendWOL(const IPAddress ip, const byte mac[]);
 void macStringToBytes(const String mac, byte *bytes);
 
-#define UPDATE_INTERVAL_SECS 3600
+#define UPDATE_INTERVAL_MILLIS 60 * 60 * 1000
 
-/*
- * 1 sec is approximately 90,909 loops so this is very approximately 10 minutes
- */
-#define LOOPS_BETWEEN_NTP_UPDATES 90,909UL * 60 * 10
+
+unsigned long lastTimeCheck = 0;
+unsigned long currentTime = 0;
 
 
 void setup(void){
@@ -81,51 +78,26 @@ void setup(void){
 	});
 	server.begin();
 	Serial.println("HTTP server started");
+
+
+	//Perform an initial update
+	updateDDNS(client, true);
+	lastTimeCheck = millis();
 }
 
 
 void loop(void){
-	static unsigned long loopcount = 0;
-	static unsigned long wdt = 0;
-	static unsigned long lastTimeCheck = 0;
-	static unsigned long currentTime = 0;
-
 	//Is there a TCP connection?
 	server.handleClient();
 
-	//Is there a UDP packet?
-	if(checkReceivedNTPUpdate(udp, &currentTime)) {
-		Serial.print("Current time: ");
-		printTimestampAsUTC(currentTime);
-		Serial.println(" (UTC)");
+	currentTime = millis();
 
-		if(currentTime - lastTimeCheck > UPDATE_INTERVAL_SECS) {
-			updateDDNS(client, true);
-			lastTimeCheck = currentTime;
-		}
-	}
-
-	//Should we reissue an NTP request?
-	if(loopcount > LOOPS_BETWEEN_NTP_UPDATES) {
-		loopcount = 0;
-		requestNTPUpdate(udp);
-		Serial.println("NTP update requested...");
-	} else {
-		loopcount++;
-	}
-
-	//Watchdog timer ensures that should a faulty NTP request set us to an invalid time
-	//we will still eventually force an update.
-	//This will be approximately every 13 hours
-	if(wdt == UINT_MAX - 1) {
-		currentTime = 0;
-		lastTimeCheck = 0;
-		loopcount = 0;
-		wdt = 0;
+	if(currentTime - lastTimeCheck > (UPDATE_INTERVAL_MILLIS)) {
 		updateDDNS(client, true);
-	} else {
-		wdt++;
+		lastTimeCheck = millis();
 	}
+
+	delay(100);
 }
 
 
