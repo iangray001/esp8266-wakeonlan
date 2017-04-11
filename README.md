@@ -26,7 +26,7 @@ platformio will read the `platformio.ini` file, which tells it which board to bu
 
 ## Programming
 If you have [NodeMCU devkit board](https://hackerstribe.com/wp-content/uploads/2015/07/NodeMCU_DEVKIT_1.0-300x200.jpg) you can simply use [esptool](https://github.com/espressif/esptool) to flash it and then write software as on any Arduino device.
-After you've esptool, just follow the instructions [in this post](http://www.whatimade.today/esp8266-easiest-way-to-program-so-far/) until the COM port selection and then compile and load your code. 
+After you've used esptool, just follow the instructions [in this post](http://www.whatimade.today/esp8266-easiest-way-to-program-so-far/) until the COM port selection and then compile and load your code. 
 
 That's the easiest way currently (2017).
 
