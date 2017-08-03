@@ -50,7 +50,7 @@ void setup(void){
     // For security reason, only the final byte of the IP can be edited from the web 
     // this should prevent this device to be used for DDoS attacks
     
-    if(server.arg("mac").length() <= 12 && server.arg("p").length() <= 200 && server.arg("bcast").length() <= 3) {
+    if(server.arg("mac").length() <= 12 && server.arg("pwd").length() <= 200 && server.arg("bcast").length() <= 3) {
       String mac = server.arg("mac");
       String p = server.arg("pwd");
       int bcast = server.arg("bcast").toInt();
